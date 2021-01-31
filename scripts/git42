@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+{ set +x; } 2>/dev/null
+
+usage() {
+    echo "usage: $(basename $0) path ..." 1>&2
+    [ "$1" = "-h" ] || [ "$1" = "--help" ]; exit
+}
+
+[ "$1" = "-h" ] || [ "$1" = "--help" ] && usage "$@"
+
+[[ $# == 0 ]] && usage
+
+while [[ $# != 0 ]]; do
+    cd "$1" || exit
+    ! [ -e .git ] && { ( set -x; git init ) || exit; };:
+    status="$(git status -s)"
+    [[ -n "$status" ]] && {
+        ( set -x; git add -A ) || exit
+        ( set -x; git add -u ) || exit
+        ( set -x; git status -s ) || exit
+        commits_count="$(git rev-list --all --count)"
+        [[ $commits_count == 1 ]] && msg="init" || msg="$(date "+%Y:%m:%d %H:%M")"
+        # --allow-empty     fix empty repo commit (fails with exit code 1)
+        ( set -x; git commit --allow-empty -q -m "$msg" ) || exit
+    }
+    remotes="$(git remote -v | awk '{print $1}' | uniq)"
+    [[ -n "$remotes" ]] && while IFS= read remote; do
+        ( set -x; git push --all "$remote" 2>&1 ) || exit
+    done <<< "$remotes";:
+    shift
+done;:
+
+
+

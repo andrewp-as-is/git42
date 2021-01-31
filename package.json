@@ -1,0 +1,14 @@
+{
+  "name": "launchd-exec",
+  "version": "2021.1.31",
+  "description": "execute script via launchd and log stdout, stderr",
+  "keywords": [
+    "launchd",
+    "exec"
+  ],
+  "homepage": "https://github.com/looking-for-a-job/launchd-exec",
+  "license": "Unlicense",
+  "bin": {
+    "launchd-exec": "./scripts/launchd-exec"
+  }
+}
